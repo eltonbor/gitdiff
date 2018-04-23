@@ -1,0 +1,32 @@
+#!/bin/bash
+
+
+if [[ $1 = "" ]] ; then
+    echo "Usage: gitdiff <file_to_compare> [Commit ID]"
+    exit
+fi
+
+if [ ! -f $1 ] ; then
+    echo "File $1 not found!"
+    exit
+fi
+
+EXT=`echo $1 | rev | cut -d'.' -f 1 | rev`
+
+
+MY_GIT_DIFF_ID=$GIT_DIFF_ID
+if [[ ! $2 = "" ]] ; then
+    MY_GIT_DIFF_ID=$2
+fi
+
+TEMP1=`tempfile`
+TEMP2=`tempfile -s "_.$EXT"`
+
+git diff $MY_GIT_DIFF_ID $1 > $TEMP1
+cp $1 $TEMP2
+patch -R $TEMP2 $TEMP1
+vimdiff $1 $TEMP2
+
+rm $TEMP1
+rm $TEMP2
+
